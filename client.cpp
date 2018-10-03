@@ -31,11 +31,11 @@ void Client::slotReadyRead()
     QJsonObject jsObj = jsonDoc.object();
     if ((jsObj.value("type") == "connection") && (jsObj.value("nickName") != "AsatiN"))
     {
-        LinkSignal::Instance().createEnemyPlayer(static_cast<qreal>(jsObj.value("posX").toInt()), static_cast<qreal>(jsObj.value("posY").toInt()));
+        LinkSignal::Instance().createEnemyPlayer(static_cast<qreal>(jsObj.value("posX").toString().toInt()), static_cast<qreal>(jsObj.value("posY").toString().toInt()));
     }
     if ((jsObj.value("type") == "move") && (jsObj.value("nickName") != "AsatiN"))
     {
-        LinkSignal::Instance().moveEnemyPlayer(jsObj.value("speedX").toInt(), jsObj.value("speedY").toInt());
+        LinkSignal::Instance().moveEnemyPlayer(jsObj.value("speedX").toString().toInt(), jsObj.value("speedY").toString().toInt());
     }
 }
 
