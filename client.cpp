@@ -7,12 +7,11 @@
 
 Client::Client(const QString &strHost, int nPort, QWidget *parent) : QWidget (parent), m_nNextBlockSize(0)
 {
-    m_pTcpSocket = new QTcpSocket(this);
-    m_pTcpSocket->connectToHost(strHost, static_cast<quint16>(nPort));
-    connect(m_pTcpSocket, SIGNAL(connected()), SLOT(slotConnected()));
-    connect(m_pTcpSocket, SIGNAL(readyRead()), SLOT(slotReadyRead()));
+    _strHost = strHost;
+    _nPort = nPort;
     connect(&LinkSignal::Instance(), SIGNAL(signalMovePlayer(int, int)), SLOT(slotSendPositionToServer(int, int)));
     connect(&LinkSignal::Instance(), SIGNAL(signalPositionPlayer(qreal, qreal)), SLOT(slotOnConnectedPlayer(qreal, qreal)));
+    connect(&LinkSignal::Instance(), SIGNAL(signalGetNickName(QString)), SLOT(slotSetNickName(QString)));
 }
 
 void Client::slotReadyRead()
@@ -29,14 +28,23 @@ void Client::slotReadyRead()
     m_nNextBlockSize = 0;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(data.toUtf8());
     QJsonObject jsObj = jsonDoc.object();
-    if ((jsObj.value("type") == "connection") && (jsObj.value("nickName") != "AsatiN"))
+    if ((jsObj.value(TYPE) == CONNECTION) && (jsObj.value(NICKNAME) != _nickName))
     {
-        LinkSignal::Instance().createEnemyPlayer(static_cast<qreal>(jsObj.value("posX").toString().toInt()), static_cast<qreal>(jsObj.value("posY").toString().toInt()));
+        LinkSignal::Instance().createEnemyPlayer(static_cast<qreal>(jsObj.value(POSX).toString().toInt()), static_cast<qreal>(jsObj.value(POSY).toString().toInt()));
     }
-    if ((jsObj.value("type") == "move") && (jsObj.value("nickName") != "AsatiN"))
+    if ((jsObj.value(TYPE) == MOVE) && (jsObj.value(NICKNAME) != _nickName))
     {
-        LinkSignal::Instance().moveEnemyPlayer(jsObj.value("speedX").toString().toInt(), jsObj.value("speedY").toString().toInt());
+        LinkSignal::Instance().moveEnemyPlayer(jsObj.value(SPEEDX).toString().toInt(), jsObj.value(SPEEDY).toString().toInt());
     }
+}
+
+void Client::slotSetNickName(QString nickName)
+{
+    _nickName = nickName;
+    m_pTcpSocket = new QTcpSocket(this);
+    m_pTcpSocket->connectToHost(_strHost, static_cast<quint16>(_nPort));
+    connect(m_pTcpSocket, SIGNAL(connected()), SLOT(slotConnected()));
+    connect(m_pTcpSocket, SIGNAL(readyRead()), SLOT(slotReadyRead()));
 }
 
 void Client::slotError(QAbstractSocket::SocketError err)
@@ -85,10 +93,10 @@ QString Client::addToJsonOnMove(int speedX, int speedY)
 {
     QJsonDocument document;
     QJsonObject root = document.object();
-    root.insert("type", "move");
-    root.insert("nickName", "AsatiN");
-    root.insert("speedX", QString::number(speedX));
-    root.insert("speedY", QString::number(speedY));
+    root.insert(TYPE, MOVE);
+    root.insert(NICKNAME, _nickName);
+    root.insert(SPEEDX, QString::number(speedX));
+    root.insert(SPEEDY, QString::number(speedY));
     document.setObject(root);
     QString strJson(document.toJson(QJsonDocument::Compact));
     return strJson;
@@ -98,10 +106,10 @@ QString Client::addToJsonOnConnected(int posX, int posY)
 {
     QJsonDocument document;
     QJsonObject root = document.object();
-    root.insert("type", "connection");
-    root.insert("nickName", "AsatiN");
-    root.insert("posX", QString::number(posX));
-    root.insert("posY", QString::number(posY));
+    root.insert(TYPE, CONNECTION);
+    root.insert(NICKNAME, _nickName);
+    root.insert(POSX, QString::number(posX));
+    root.insert(POSY, QString::number(posY));
     document.setObject(root);
     QString strJson(document.toJson(QJsonDocument::Compact));
     return strJson;

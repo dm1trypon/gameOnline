@@ -27,6 +27,11 @@ void LinkSignal::createEnemyPlayer(qreal posX, qreal posY)
     emit signalCreateEnemyPlayer(posX, posY);
 }
 
+void LinkSignal::getNickName(QString nickName)
+{
+    emit signalGetNickName(nickName);
+}
+
 void LinkSignal::moveEnemyPlayer(int speedX, int speedY)
 {
     emit signalMoveEnemyPlayer(speedX, speedY);

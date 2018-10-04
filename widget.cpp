@@ -3,6 +3,7 @@
 #include "player.h"
 #include "enemyplayer.h"
 #include "linksignal.h"
+#include "client.h"
 
 #include <QDebug>
 #include <QKeyEvent>
@@ -12,15 +13,34 @@ Widget::Widget(QWidget *parent) :
     ui(new Ui::Widget)
 {
     ui->setupUi(this);
-    createScene();
-    timers();
-    connections();
+    ui->graphicsView->hide();
+    createEnter();
+    connect(_enterNickName, SIGNAL(returnPressed()), this, SLOT(newGame()));
 }
 
 Widget::~Widget()
 {
     animationTimer->stop();
     delete ui;
+}
+
+void Widget::newGame()
+{
+    LinkSignal::Instance().getNickName(_enterNickName->text());
+    _enterNickName->hide();
+    ui->graphicsView->show();
+    createScene();
+    timers();
+    connections();
+}
+
+void Widget::createEnter()
+{
+    _enterNickName = new QLineEdit("", this);
+    _enterNickName->setMaxLength(15);
+    _enterNickName->setPlaceholderText("Insert your nickname...");
+    _enterNickName->setStyleSheet("font: 25px");
+    _enterNickName->setGeometry(QRect(QPoint(100, 100), QSize(300, 50)));
 }
 
 void Widget::createScene()
@@ -56,7 +76,7 @@ void Widget::createPlayer()
     srand(static_cast<uint>(time(nullptr)));
     qreal setX = rand() % (SCENE_WIDTH);
     qreal setY = rand() % (SCENE_HEIGHT);
-    qDebug() << setX << setY;
+    qDebug() << "Player has been created!";
     Player *player_ = new Player(setX, setY);
     scene->addItem(player_);
     LinkSignal::Instance().positionPlayer(setX, setY);

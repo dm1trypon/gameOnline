@@ -8,7 +8,6 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     Widget w;
     w.show();
-    Client c("192.168.0.105", 8080);
-
+    Client c("127.0.0.1", 8080);
     return a.exec();
 }

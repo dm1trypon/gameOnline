@@ -18,11 +18,13 @@ public:
     void createEnemyPlayer(qreal posX, qreal posY);
     void moveEnemyPlayer(int speedX, int speedY);
     static LinkSignal& Instance();
+    void getNickName(QString nickName);
 signals:
     void signalConnectedToServer();
     void signalPositionPlayer(qreal setX, qreal setY);
     void signalMovePlayer(int xSpeed, int ySpeed);
     void signalCreateEnemyPlayer(qreal posX, qreal posY);
     void signalMoveEnemyPlayer(int speedX, int speedY);
+    void signalGetNickName(QString nickName);
 };
 #endif // LINKSIGNAL_H
