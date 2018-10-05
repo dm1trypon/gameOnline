@@ -30,8 +30,8 @@ int EnemyPlayer::type() const
 
 void EnemyPlayer::movePlayer()
 {
-    moveBy(xSpeed, ySpeed);
-    setRotation(xSpeed);
+    setPos(xSpeed, ySpeed);
+//    setRotation(xSpeed);
 }
 void EnemyPlayer::collisionObjects()
 {

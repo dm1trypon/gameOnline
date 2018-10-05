@@ -32,7 +32,14 @@ int Player::type() const
 void Player::movePlayer()
 {
     moveBy(xSpeed, ySpeed);
-    setRotation(xSpeed);
+    int posX = static_cast<int>(this->pos().x());
+    int posY = static_cast<int>(this->pos().y());
+    if ((xSpeed) || (ySpeed))
+    {
+        LinkSignal::Instance().movePlayer(posX, posY);
+    }
+
+//    setRotation(xSpeed);
 }
 void Player::collisionObjects()
 {
@@ -44,19 +51,19 @@ void Player::keyPressEvent(QKeyEvent *event)
     switch (event->key()) {
     case Qt::Key_Left:
         xSpeed = - speedPlayer;
-        LinkSignal::Instance().movePlayer(xSpeed, 0);
+//        LinkSignal::Instance().movePlayer(xSpeed, 0);
         break;
     case Qt::Key_Right:
         xSpeed = speedPlayer;
-        LinkSignal::Instance().movePlayer(xSpeed, 0);
+//        LinkSignal::Instance().movePlayer(xSpeed, 0);
         break;
     case Qt::Key_Up:
         ySpeed = - speedPlayer;
-        LinkSignal::Instance().movePlayer(0, ySpeed);
+//        LinkSignal::Instance().movePlayer(0, ySpeed);
         break;
     case Qt::Key_Down:
         ySpeed = speedPlayer;
-        LinkSignal::Instance().movePlayer(0, ySpeed);
+//        LinkSignal::Instance().movePlayer(0, ySpeed);
         break;
 //    case Qt::Key_Space:
 //        scene()->addItem(new Bullet(mapToScene(QPointF(pixmap().width()/2, 0)), nullptr));
@@ -72,19 +79,19 @@ void Player::keyReleaseEvent(QKeyEvent *event)
     switch (event->key()) {
     case Qt::Key_Left:
         xSpeed = 0;
-        LinkSignal::Instance().movePlayer(xSpeed, 0);
+//        LinkSignal::Instance().movePlayer(xSpeed, 0);
         break;
     case Qt::Key_Right:
         xSpeed = 0;
-        LinkSignal::Instance().movePlayer(xSpeed, 0);
+//        LinkSignal::Instance().movePlayer(xSpeed, 0);
         break;
     case Qt::Key_Up:
         ySpeed = 0;
-        LinkSignal::Instance().movePlayer(0, ySpeed);
+//        LinkSignal::Instance().movePlayer(0, ySpeed);
         break;
     case Qt::Key_Down:
         ySpeed = 0;
-        LinkSignal::Instance().movePlayer(0, ySpeed);
+//        LinkSignal::Instance().movePlayer(0, ySpeed);
         break;
     default:
         break;
