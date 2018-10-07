@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTcpSocket>
+#include <QJsonArray>
 
 class Client : public QWidget
 {
@@ -12,6 +13,7 @@ public:
 private:
     QString _strHost;
     int _nPort;
+    const QString CLIENTS_LIST = "clientsList";
     const QString TYPE = "type";
     const QString CONNECTION = "connection";
     const QString MOVE = "move";
@@ -20,6 +22,7 @@ private:
     const QString SPEEDY = "speedY";
     const QString POSX = "posX";
     const QString POSY = "posY";
+    QJsonArray _arrClients;
     QTcpSocket* m_pTcpSocket;
     quint16 m_nNextBlockSize;
     QString addToJsonOnMove(int speedX, int speedY);

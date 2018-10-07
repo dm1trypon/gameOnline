@@ -65,10 +65,11 @@ void Widget::connections()
     connect(&LinkSignal::Instance(), SIGNAL(signalCreateEnemyPlayer(qreal, qreal)), this, SLOT(createEnemyPlayer(qreal, qreal)));
 }
 
-void Widget::createEnemyPlayer(qreal posX, qreal poxY)
+void Widget::createEnemyPlayer(qreal posX, qreal posY)
 {
-    EnemyPlayer *enemyPlayer_ = new EnemyPlayer(posX, poxY);
+    EnemyPlayer *enemyPlayer_ = new EnemyPlayer(posX, posY);
     scene->addItem(enemyPlayer_);
+    qDebug() << "ENEMY PLAYER DATA: POSX:" << enemyPlayer_->pos().x() << "POSY:" << enemyPlayer_->pos().y();
 }
 
 void Widget::createPlayer()

@@ -28,9 +28,30 @@ void Client::slotReadyRead()
     m_nNextBlockSize = 0;
     QJsonDocument jsonDoc = QJsonDocument::fromJson(data.toUtf8());
     QJsonObject jsObj = jsonDoc.object();
-    if ((jsObj.value(TYPE) == CONNECTION) && (jsObj.value(NICKNAME) != _nickName))
+    if (jsObj.value(TYPE) == CLIENTS_LIST)
     {
-        LinkSignal::Instance().createEnemyPlayer(static_cast<qreal>(jsObj.value(POSX).toString().toInt()), static_cast<qreal>(jsObj.value(POSY).toString().toInt()));
+        bool find = false;
+        QJsonObject objClients;
+        QJsonArray arrClients = jsObj[CLIENTS_LIST].toArray();
+        foreach (const QJsonValue & value, arrClients)
+        {
+            QJsonObject objArr = value.toObject();
+            foreach (const QJsonValue & _value, _arrClients)
+            {
+                QJsonObject _objArr = _value.toObject();
+                if (objArr.value(NICKNAME) == _objArr.value(NICKNAME))
+                {
+                    find = true;
+                    break;
+                }
+            }
+            if ((!find) && (_nickName != objArr.value(NICKNAME).toString()))
+            {
+                _arrClients.push_back(objArr);
+                LinkSignal::Instance().createEnemyPlayer(static_cast<qreal>(objArr.value(POSX).toString().toInt()), static_cast<qreal>(objArr.value(POSY).toString().toInt()));
+                find = false;
+            }
+        }
     }
     if ((jsObj.value(TYPE) == MOVE) && (jsObj.value(NICKNAME) != _nickName))
     {
@@ -72,6 +93,7 @@ void Client::slotOnConnectedPlayer(qreal posX, qreal posY)
     QByteArray arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_8);
+    qDebug() << "CONNECT!";
     out << quint16(0) << addToJsonOnConnected(static_cast<int>(posX), static_cast<int>(posY));
     out.device()->seek(0);
     out << quint16(static_cast<quint16>(arrBlock.size()) - sizeof(quint16));

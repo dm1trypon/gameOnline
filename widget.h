@@ -21,7 +21,7 @@ public:
 
 private slots:
     void createPlayer();
-    void createEnemyPlayer(qreal posX, qreal poxY);
+    void createEnemyPlayer(qreal posX, qreal posY);
     void newGame();
 private:
     const int SCENE_WIDTH = 1920;

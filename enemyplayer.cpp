@@ -1,9 +1,12 @@
 #include "enemyplayer.h"
 #include "linksignal.h"
 
+#include <QDebug>
+
 
 EnemyPlayer::EnemyPlayer(qreal posX, qreal posY) : QObject(), QGraphicsPixmapItem (nullptr)
 {
+    qDebug() << "POSX:" << posX << "POSY:" << posY;
     setPixmap(QPixmap(":/img/enemy_player.png"));
     setPos(posX, posY);
     connect(&LinkSignal::Instance(), SIGNAL(signalMoveEnemyPlayer(int, int)), SLOT(onMoveEvent(int, int)));
