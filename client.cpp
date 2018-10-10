@@ -107,7 +107,7 @@ void Client::slotSendPositionToServer(int speedX, int speedY)
     out.setVersion(QDataStream::Qt_5_8);
     out << quint16(0) << addToJsonOnMove(speedX, speedY);
     out.device()->seek(0);
-    out << quint16(static_cast<quint16>(arrBlock.size()) - sizeof(quint16));
+//    out << quint16(static_cast<quint16>(arrBlock.size()) - sizeof(quint16));
     m_pTcpSocket->write(arrBlock);
 }
 

@@ -49,6 +49,7 @@ void Widget::createScene()
     scene->setStickyFocus(true);
     QPixmap pim(":/img/bg.jpg");
     scene->setBackgroundBrush(pim.scaled(SCENE_WIDTH, SCENE_HEIGHT, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
+//    scene->fitInView(scene, Qt::KeepAspectRatio);
     ui->graphicsView->setScene(scene);
 }
 

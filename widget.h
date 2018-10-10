@@ -24,8 +24,8 @@ private slots:
     void createEnemyPlayer(qreal posX, qreal posY);
     void newGame();
 private:
-    const int SCENE_WIDTH = 1920;
-    const int SCENE_HEIGHT = 1080;
+    const int SCENE_WIDTH = 1820;
+    const int SCENE_HEIGHT = 980;
     const int TIME_ANIMATION = 1000/60;
     QLineEdit *_enterNickName;
     Ui::Widget *ui;
