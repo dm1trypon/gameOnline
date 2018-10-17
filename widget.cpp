@@ -7,15 +7,17 @@
 
 #include <QDebug>
 #include <QKeyEvent>
+#include <QLayout>
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Widget)
 {
     ui->setupUi(this);
+    ui->verticalLayout->setMargin(0);
     ui->graphicsView->hide();
     createEnter();
-    connect(_enterNickName, SIGNAL(returnPressed()), this, SLOT(newGame()));
+    connect(_enterNickName, &QLineEdit::returnPressed, this, &Widget::slotNewGame);
 }
 
 Widget::~Widget()
@@ -24,8 +26,9 @@ Widget::~Widget()
     delete ui;
 }
 
-void Widget::newGame()
+void Widget::slotNewGame()
 {
+    qDebug() << "Your login is" << _enterNickName->text() << ". Welcome to gamefield!";
     LinkSignal::Instance().getNickName(_enterNickName->text());
     _enterNickName->hide();
     ui->graphicsView->show();
@@ -45,40 +48,45 @@ void Widget::createEnter()
 
 void Widget::createScene()
 {
-    scene = new QGraphicsScene(0, 0, SCENE_WIDTH, SCENE_HEIGHT, this);
+    scene = new QGraphicsScene(0, 0,
+                               ui->graphicsView->width() - PADDING,
+                               ui->graphicsView->height() - PADDING, this);
     scene->setStickyFocus(true);
-    QPixmap pim(":/img/bg.jpg");
-    scene->setBackgroundBrush(pim.scaled(SCENE_WIDTH, SCENE_HEIGHT, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-//    scene->fitInView(scene, Qt::KeepAspectRatio);
+    QPixmap pim(PATH_TO_BG_IMG);
+    scene->setBackgroundBrush(pim.scaled(ui->graphicsView->width() - 10,
+                                         ui->graphicsView->height() - 10,
+                                         Qt::IgnoreAspectRatio,
+                                         Qt::SmoothTransformation));
     ui->graphicsView->setScene(scene);
+    qDebug() << "Scene has been created!";
 }
 
 void Widget::timers()
 {
     animationTimer = new QTimer(this);
     animationTimer->start(TIME_ANIMATION);
+    qDebug() << "Timers runing!";
 }
 
 void Widget::connections()
 {
-    connect(animationTimer, SIGNAL(timeout()), scene, SLOT(advance()));
-    connect(&LinkSignal::Instance(), SIGNAL(signalConnectedToServer()), this, SLOT(createPlayer()));
-    connect(&LinkSignal::Instance(), SIGNAL(signalCreateEnemyPlayer(qreal, qreal)), this, SLOT(createEnemyPlayer(qreal, qreal)));
+    connect(animationTimer, &QTimer::timeout, scene, &QGraphicsScene::advance);
+    connect(&LinkSignal::Instance(), &LinkSignal::signalConnectedToServer, this, &Widget::slotCreatePlayer);
+    connect(&LinkSignal::Instance(), &LinkSignal::signalCreateEnemyPlayer, this, &Widget::slotCreateEnemyPlayer);
 }
 
-void Widget::createEnemyPlayer(qreal posX, qreal posY)
+void Widget::slotCreateEnemyPlayer(qreal posX, qreal posY)
 {
     EnemyPlayer *enemyPlayer_ = new EnemyPlayer(posX, posY);
     scene->addItem(enemyPlayer_);
-    qDebug() << "ENEMY PLAYER DATA: POSX:" << enemyPlayer_->pos().x() << "POSY:" << enemyPlayer_->pos().y();
+    enemyPlayer_->setPos(posX, posY);
 }
 
-void Widget::createPlayer()
+void Widget::slotCreatePlayer()
 {
     srand(static_cast<uint>(time(nullptr)));
     qreal setX = rand() % (SCENE_WIDTH);
     qreal setY = rand() % (SCENE_HEIGHT);
-    qDebug() << "Player has been created!";
     Player *player_ = new Player(setX, setY);
     scene->addItem(player_);
     LinkSignal::Instance().positionPlayer(setX, setY);

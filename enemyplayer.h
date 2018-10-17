@@ -14,13 +14,15 @@ public:
     void advance(int phase);
 private:
     const int speedPlayer = 5;
+    const QString PATH_TO_ENEMYPLAYER_IMG = ":/img/enemy_player.png";
+
+    qreal _posX = 0;
+    qreal _posY = 0;
     int type() const;
-    int xSpeed = 0;
-    int ySpeed = 0;
     void collisionObjects();
     void movePlayer();
 private slots:
-    void onMoveEvent(int speedX, int speedY);
+    void slotOnMoveEvent(int posX, int posY);
 };
 
 #endif // ENEMYPLAYER_H

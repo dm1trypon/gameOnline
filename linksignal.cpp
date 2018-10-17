@@ -1,4 +1,5 @@
 #include "linksignal.h"
+#include "widget.h"
 
 
 LinkSignal &LinkSignal::Instance()
@@ -12,14 +13,14 @@ void LinkSignal::connectedToServer()
     emit signalConnectedToServer();
 }
 
-void LinkSignal::positionPlayer(qreal setX, qreal setY)
+void LinkSignal::positionPlayer(qreal posX, qreal posY)
 {
-    emit signalPositionPlayer(setX, setY);
+    emit signalPositionPlayer(posX, posY);
 }
 
-void LinkSignal::movePlayer(int xSpeed, int ySpeed)
+void LinkSignal::movePlayer(qreal posX, qreal posY)
 {
-    emit signalMovePlayer(xSpeed, ySpeed);
+    emit signalMovePlayer(posX, posY);
 }
 
 void LinkSignal::createEnemyPlayer(qreal posX, qreal posY)
@@ -32,7 +33,32 @@ void LinkSignal::getNickName(QString nickName)
     emit signalGetNickName(nickName);
 }
 
-void LinkSignal::moveEnemyPlayer(int speedX, int speedY)
+void LinkSignal::moveEnemyPlayer(qreal posX, qreal posY)
 {
-    emit signalMoveEnemyPlayer(speedX, speedY);
+    emit signalMoveEnemyPlayer(posX, posY);
+}
+
+bool LinkSignal::onFrameBoard(qreal posX, qreal posY)
+{
+    return posX < SCENE_WIDTH && posX > 0 && posY < SCENE_HEIGHT && posY > 0;
+}
+
+void LinkSignal::workWithJson(QString data)
+{
+    emit signalWorkWithJson(data);
+}
+
+void LinkSignal::jsonOnMove(qreal posX, qreal posY, QString type)
+{
+    emit signalJsonOnMove(posX, posY, type);
+}
+
+void LinkSignal::jsonOnConnection(qreal posX, qreal posY, QString type)
+{
+    emit signalJsonOnConnection(posX, posY, type);
+}
+
+void LinkSignal::compactJson(QString strJson)
+{
+    emit signalCompactJson(strJson);
 }

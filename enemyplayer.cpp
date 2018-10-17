@@ -3,13 +3,14 @@
 
 #include <QDebug>
 
-
 EnemyPlayer::EnemyPlayer(qreal posX, qreal posY) : QObject(), QGraphicsPixmapItem (nullptr)
 {
-    qDebug() << "POSX:" << posX << "POSY:" << posY;
-    setPixmap(QPixmap(":/img/enemy_player.png"));
+    setPixmap(QPixmap(PATH_TO_ENEMYPLAYER_IMG));
+    _posX = posX;
+    _posY = posY;
     setPos(posX, posY);
-    connect(&LinkSignal::Instance(), SIGNAL(signalMoveEnemyPlayer(int, int)), SLOT(onMoveEvent(int, int)));
+    qDebug() << "Enemy player has been created (" << _posX << ";" << _posY << ")";
+    connect(&LinkSignal::Instance(), &LinkSignal::signalMoveEnemyPlayer, this, &EnemyPlayer::slotOnMoveEvent);
 }
 
 void EnemyPlayer::advance(int phase)
@@ -20,10 +21,11 @@ void EnemyPlayer::advance(int phase)
     if (phase >= 1) {
         movePlayer();
     }
-//    if (collision()) {
-//        endGameMessageSpaceship(ENDGAME);
-//        delete this;
-//    }
+}
+
+void EnemyPlayer::collisionObjects()
+{
+
 }
 
 int EnemyPlayer::type() const
@@ -33,16 +35,12 @@ int EnemyPlayer::type() const
 
 void EnemyPlayer::movePlayer()
 {
-    setPos(xSpeed, ySpeed);
-//    setRotation(xSpeed);
-}
-void EnemyPlayer::collisionObjects()
-{
-
+    setPos(_posX, _posY);
+    qDebug() << "Move enemy player (" << _posX << ";" << _posY << ")";
 }
 
-void EnemyPlayer::onMoveEvent(int speedX, int speedY)
+void EnemyPlayer::slotOnMoveEvent(int posX, int posY)
 {
-    xSpeed = speedX;
-    ySpeed = speedY;
+    _posX = posX;
+    _posY = posY;
 }

@@ -28,14 +28,16 @@ SOURCES += \
     player.cpp \
     client.cpp \
     linksignal.cpp \
-    enemyplayer.cpp
+    enemyplayer.cpp \
+    parser.cpp
 
 HEADERS += \
         widget.h \
     player.h \
     client.h \
     linksignal.h \
-    enemyplayer.h
+    enemyplayer.h \
+    parser.h
 
 FORMS += \
         widget.ui

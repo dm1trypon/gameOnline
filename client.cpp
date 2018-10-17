@@ -1,5 +1,6 @@
 #include "client.h"
 #include "linksignal.h"
+#include "parser.h"
 
 #include <QMessageBox>
 #include <QJsonDocument>
@@ -9,9 +10,10 @@ Client::Client(const QString &strHost, int nPort, QWidget *parent) : QWidget (pa
 {
     _strHost = strHost;
     _nPort = nPort;
-    connect(&LinkSignal::Instance(), SIGNAL(signalMovePlayer(int, int)), SLOT(slotSendPositionToServer(int, int)));
-    connect(&LinkSignal::Instance(), SIGNAL(signalPositionPlayer(qreal, qreal)), SLOT(slotOnConnectedPlayer(qreal, qreal)));
-    connect(&LinkSignal::Instance(), SIGNAL(signalGetNickName(QString)), SLOT(slotSetNickName(QString)));
+    connect(&LinkSignal::Instance(), &LinkSignal::signalMovePlayer, this, &Client::slotPositionToJson);
+    connect(&LinkSignal::Instance(), &LinkSignal::signalPositionPlayer, this, &Client::slotConnectionToJson);
+    connect(&LinkSignal::Instance(), &LinkSignal::signalGetNickName, this, &Client::slotOnConnection);
+    connect(&LinkSignal::Instance(), &LinkSignal::signalCompactJson, this, &Client::slotSender);
 }
 
 void Client::slotReadyRead()
@@ -24,48 +26,17 @@ void Client::slotReadyRead()
     }
     QString data;
     in >> data;
-    qDebug() << "DATA:" << data;
+    qDebug() << "Incoming data from server:" << data;
     m_nNextBlockSize = 0;
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(data.toUtf8());
-    QJsonObject jsObj = jsonDoc.object();
-    if (jsObj.value(TYPE) == CLIENTS_LIST)
-    {
-        bool find = false;
-        QJsonObject objClients;
-        QJsonArray arrClients = jsObj[CLIENTS_LIST].toArray();
-        foreach (const QJsonValue & value, arrClients)
-        {
-            QJsonObject objArr = value.toObject();
-            foreach (const QJsonValue & _value, _arrClients)
-            {
-                QJsonObject _objArr = _value.toObject();
-                if (objArr.value(NICKNAME) == _objArr.value(NICKNAME))
-                {
-                    find = true;
-                    break;
-                }
-            }
-            if ((!find) && (_nickName != objArr.value(NICKNAME).toString()))
-            {
-                _arrClients.push_back(objArr);
-                LinkSignal::Instance().createEnemyPlayer(static_cast<qreal>(objArr.value(POSX).toString().toInt()), static_cast<qreal>(objArr.value(POSY).toString().toInt()));
-                find = false;
-            }
-        }
-    }
-    if ((jsObj.value(TYPE) == MOVE) && (jsObj.value(NICKNAME) != _nickName))
-    {
-        LinkSignal::Instance().moveEnemyPlayer(jsObj.value(SPEEDX).toString().toInt(), jsObj.value(SPEEDY).toString().toInt());
-    }
+    LinkSignal::Instance().workWithJson(data);
 }
 
-void Client::slotSetNickName(QString nickName)
+void Client::slotOnConnection(QString)
 {
-    _nickName = nickName;
     m_pTcpSocket = new QTcpSocket(this);
     m_pTcpSocket->connectToHost(_strHost, static_cast<quint16>(_nPort));
-    connect(m_pTcpSocket, SIGNAL(connected()), SLOT(slotConnected()));
-    connect(m_pTcpSocket, SIGNAL(readyRead()), SLOT(slotReadyRead()));
+    connect(m_pTcpSocket, &QTcpSocket::connected, this, &Client::slotConnected);
+    connect(m_pTcpSocket, &QTcpSocket::readyRead, this, &Client::slotReadyRead);
 }
 
 void Client::slotError(QAbstractSocket::SocketError err)
@@ -84,55 +55,26 @@ void Client::slotError(QAbstractSocket::SocketError err)
 
 void Client::slotConnected()
 {
-    qDebug() << "CONNECTED!";
+    qDebug() << "Server connected!";
     LinkSignal::Instance().connectedToServer();
 }
 
-void Client::slotOnConnectedPlayer(qreal posX, qreal posY)
+void Client::slotConnectionToJson(qreal posX, qreal posY)
+{
+    LinkSignal::Instance().jsonOnConnection(posX, posY, CONNECTION);
+}
+
+void Client::slotPositionToJson(qreal posX, qreal posY)
+{
+    LinkSignal::Instance().jsonOnMove(posX, posY, MOVE);
+}
+
+void Client::slotSender(QString data)
 {
     QByteArray arrBlock;
     QDataStream out(&arrBlock, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_5_8);
-    qDebug() << "CONNECT!";
-    out << quint16(0) << addToJsonOnConnected(static_cast<int>(posX), static_cast<int>(posY));
+    out << quint16(0) << data;
     out.device()->seek(0);
-    out << quint16(static_cast<quint16>(arrBlock.size()) - sizeof(quint16));
     m_pTcpSocket->write(arrBlock);
-}
-
-void Client::slotSendPositionToServer(int speedX, int speedY)
-{
-    QByteArray arrBlock;
-    QDataStream out(&arrBlock, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_5_8);
-    out << quint16(0) << addToJsonOnMove(speedX, speedY);
-    out.device()->seek(0);
-//    out << quint16(static_cast<quint16>(arrBlock.size()) - sizeof(quint16));
-    m_pTcpSocket->write(arrBlock);
-}
-
-QString Client::addToJsonOnMove(int speedX, int speedY)
-{
-    QJsonDocument document;
-    QJsonObject root = document.object();
-    root.insert(TYPE, MOVE);
-    root.insert(NICKNAME, _nickName);
-    root.insert(SPEEDX, QString::number(speedX));
-    root.insert(SPEEDY, QString::number(speedY));
-    document.setObject(root);
-    QString strJson(document.toJson(QJsonDocument::Compact));
-    return strJson;
-}
-
-QString Client::addToJsonOnConnected(int posX, int posY)
-{
-    QJsonDocument document;
-    QJsonObject root = document.object();
-    root.insert(TYPE, CONNECTION);
-    root.insert(NICKNAME, _nickName);
-    root.insert(POSX, QString::number(posX));
-    root.insert(POSY, QString::number(posY));
-    document.setObject(root);
-    QString strJson(document.toJson(QJsonDocument::Compact));
-    return strJson;
 }

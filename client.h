@@ -11,30 +11,30 @@ class Client : public QWidget
 public:
     Client(const QString& strHost ,int nPort, QWidget *parent = nullptr);
 private:
-    QString _strHost;
-    int _nPort;
     const QString CLIENTS_LIST = "clientsList";
     const QString TYPE = "type";
     const QString CONNECTION = "connection";
     const QString MOVE = "move";
     const QString NICKNAME = "nickName";
-    const QString SPEEDX = "speedX";
-    const QString SPEEDY = "speedY";
     const QString POSX = "posX";
     const QString POSY = "posY";
+
+    QString _strHost;
+    int _nPort;
     QJsonArray _arrClients;
     QTcpSocket* m_pTcpSocket;
     quint16 m_nNextBlockSize;
-    QString addToJsonOnMove(int speedX, int speedY);
-    QString addToJsonOnConnected(int posX, int posY);
     QString _nickName;
+    bool onFind(QJsonObject jsObj);
+    void processParse(QString data);
 private slots:
     void slotReadyRead();
     void slotError(QAbstractSocket::SocketError err);
     void slotConnected();
-    void slotSendPositionToServer(int speedX, int speedY);
-    void slotOnConnectedPlayer(qreal posX, qreal posY);
-    void slotSetNickName(QString nickName);
+    void slotPositionToJson(qreal posX, qreal posY);
+    void slotConnectionToJson(qreal posX, qreal posY);
+    void slotOnConnection(QString nickName);
+    void slotSender(QString data);
 signals:
     void signalConnectedToServer();
 };
