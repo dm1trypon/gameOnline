@@ -38,9 +38,9 @@ bool Player::onFrame(int phase)
 
 void Player::movePlayer()
 {
-    moveBy(xSpeed, ySpeed);
     if ((xSpeed) || (ySpeed))
     {
+        moveBy(xSpeed, ySpeed);
         qDebug() << "Move player (" << getPostionX() << ";" << getPostionY() << ")";
         LinkSignal::Instance().movePlayer(getPostionX(), getPostionY());
     }

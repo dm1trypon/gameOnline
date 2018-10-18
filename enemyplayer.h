@@ -16,11 +16,14 @@ private:
     const int speedPlayer = 5;
     const QString PATH_TO_ENEMYPLAYER_IMG = ":/img/enemy_player.png";
 
+    qreal _posXold = 0;
+    qreal _posYold = 0;
     qreal _posX = 0;
     qreal _posY = 0;
     int type() const;
     void collisionObjects();
     void movePlayer();
+    bool onChangeMove();
 private slots:
     void slotOnMoveEvent(int posX, int posY);
 };

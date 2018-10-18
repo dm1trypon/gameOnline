@@ -33,12 +33,19 @@ void Parser::slotProcessParse(QString data)
                     break;
                 }
             }
-            if (!find && !onFind(jsObj))
+
+            if ((!find) && (_nickName != objArr.value(NICKNAME).toString()))
             {
                 _arrClients.push_back(objArr);
-                LinkSignal::Instance().createEnemyPlayer(objArr.value(POSX).toString().toInt(), objArr.value(POSY).toString().toInt());
+                LinkSignal::Instance().createEnemyPlayer(static_cast<qreal>(objArr.value(POSX).toString().toInt()), static_cast<qreal>(objArr.value(POSY).toString().toInt()));
                 find = false;
             }
+//            if (!find && !onFind(jsObj))
+//            {
+//                _arrClients.push_back(objArr);
+//                LinkSignal::Instance().createEnemyPlayer(objArr.value(POSX).toString().toInt(), objArr.value(POSY).toString().toInt());
+//                find = false;
+//            }
         }
     }
     if ((jsObj.value(TYPE) == MOVE) && onFind(jsObj))

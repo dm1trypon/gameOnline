@@ -35,8 +35,18 @@ int EnemyPlayer::type() const
 
 void EnemyPlayer::movePlayer()
 {
-    setPos(_posX, _posY);
-    qDebug() << "Move enemy player (" << _posX << ";" << _posY << ")";
+    if (onChangeMove())
+    {
+        setPos(_posX, _posY);
+        qDebug() << "Move enemy player (" << _posX << ";" << _posY << ")";
+    }
+    _posXold = _posX;
+    _posYold = _posY;
+}
+
+bool EnemyPlayer::onChangeMove()
+{
+    return !std::equal_to<qreal>()(_posX, _posXold) && !std::equal_to<qreal>()(_posY, _posYold);
 }
 
 void EnemyPlayer::slotOnMoveEvent(int posX, int posY)
